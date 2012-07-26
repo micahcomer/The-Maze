@@ -1,17 +1,11 @@
 package com.mjc.maze.mazestructure;
 
 import android.content.Context;
-
-
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-
-
 import com.mjc.maze.basics.DirectionType;
 import com.mjc.maze.basics.MazePathBlock;
 import com.mjc.maze.basics.Point;

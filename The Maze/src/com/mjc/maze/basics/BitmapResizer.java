@@ -122,6 +122,8 @@ public class BitmapResizer {
 				bitmapToReturn = BitmapFactory.decodeResource(resources, R.drawable.trees_upleftrightdown);
 				
 				break;
+		default:
+			break;
 			 
 		 }
 		 return bitmapToReturn;

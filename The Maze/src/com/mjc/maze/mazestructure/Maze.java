@@ -1,7 +1,6 @@
 package com.mjc.maze.mazestructure;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ActivityManager;
@@ -18,7 +17,6 @@ import android.view.MotionEvent;
 
 import com.mjc.maze.R;
 import com.mjc.maze.basics.BitmapResizer;
-import com.mjc.maze.basics.MazePathBlock;
 import com.mjc.maze.basics.PathConnectionData;
 import com.mjc.maze.basics.Point;
 import com.mjc.maze.basics.PointList;
@@ -168,6 +166,10 @@ public class Maze implements com.mjc.maze.events.GameListener, Serializable,
 
 	}
 
+	
+	//region CreateConnData Method deprecated
+	
+/*
 	private void CreateConnectionData()
 	{
 		ConnectionData = new ArrayList<PathConnectionData>();
@@ -230,6 +232,8 @@ public class Maze implements com.mjc.maze.events.GameListener, Serializable,
 		
 	}
 	
+	*/
+	//endregion
 	private void DrawFullMazeFromTiles() {
 		
 		// Draw the maze to the bitmap we use in the draw method...
@@ -341,6 +345,8 @@ public class Maze implements com.mjc.maze.events.GameListener, Serializable,
 			// OffsetMazeIfNeeded();
 			break;
 		}
+		default:
+			break;
 		}
 
 		Player.mazeOrigin.setX(onScreenMazeBox.left

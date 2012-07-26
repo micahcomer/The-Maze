@@ -244,6 +244,8 @@ public class Player implements ButtonListener, GameListener{
                 Picture = rightPicture;
                 break;
             }
+		default:
+			break;
         }
     }
 
@@ -312,6 +314,8 @@ public class Player implements ButtonListener, GameListener{
     			whichToMove=WhichToMove.Maze;
     		break;
     	}
+		default:
+			break;
     	}
     	return whichToMove;
     }
@@ -380,6 +384,8 @@ public class Player implements ButtonListener, GameListener{
                 }
                 break;
             }
+		default:
+			break;
         }
     	return absoluteDistanceTraveled;
     }
@@ -816,6 +822,8 @@ public class Player implements ButtonListener, GameListener{
                 }
                 break;
             }
+		default:
+			break;
         }
         }
     }

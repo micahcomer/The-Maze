@@ -81,15 +81,7 @@ public class MazeTileAssigner implements Serializable {
         for (PointList Path : allMazePaths)
         {
             for (int i = 0; i < Path.Points.size(); i++)
-            {
-            	
-            	if (i==24)
-            	{
-            		int x = 7;
-            		x++;
-            	}
-
-            	//region Determine if the point is a Node, and if so, assign it to Nodes...
+            {            	//region Determine if the point is a Node, and if so, assign it to Nodes...
             	
                 MazeTileType currentTileDirections = CompareSurroundingPathTiles(Path, i);
 

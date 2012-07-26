@@ -100,7 +100,7 @@ public class MazeScreen extends GameScreen implements Serializable, ButtonListen
 		maze.CreateMaze(context, currentLevel, onScreenMazeBox);
 		leftBorder = new Rect (0,0,onScreenMazeBox.left, onScreenMazeBox.bottom);
 		rightBorder = new Rect (onScreenMazeBox.right, 0, screenDimensions.getX(), onScreenMazeBox.bottom);
-		timer = new MazeTimer(maze.getPathToFinishSize(), onScreenMazeBox, context);
+		timer = new MazeTimer(maze.getPathToFinishSize(), onScreenMazeBox, context, gsm);
 		maze.powerUpManager.addListener(this);
 		maze.getPlayer().addPlayerListener(this);
 	

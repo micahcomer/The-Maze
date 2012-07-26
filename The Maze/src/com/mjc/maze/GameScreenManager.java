@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.mjc.maze.basics.Point;
 import com.mjc.maze.buttons.ButtonEvent;
@@ -31,6 +32,7 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
     long lastUpdate = 0;
     long sleepTime=0;
     
+    public boolean paused = false;
     
   //objects which house info about the screen
     SurfaceHolder surfaceHolder;
@@ -75,8 +77,10 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 	}
 
     
+	
+	
     //initialization code
-    private void InitView(){
+    public void InitView(){
       //initialize our screen holder
       SurfaceHolder holder = getHolder();
       holder.addCallback( this);	
@@ -173,6 +177,7 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 		        }
 			 LoadScreen.setLevel(currentLevel);
 			CurrentScreen = LoadScreen;		
+			currentLevel++;
 		}
 		else
 			if (evt.getType()==ButtonEventType.ExitGame)
@@ -196,8 +201,13 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 				e.printStackTrace();
 			}
 			
-			
 			buttonEventOccurred(new ButtonEvent(this, ButtonEventType.StartGame));
+		}
+		else if (evt.getType()==MazeEventType.timerGoesOff)
+		{			
+			setInitScreen();
+			currentLevel--;
+			
 		}
 		
 		

@@ -15,9 +15,11 @@ import android.graphics.Typeface;
 import android.graphics.Paint.Style;
 import android.os.SystemClock;
 
+import com.mjc.maze.GameScreenManager;
 import com.mjc.maze.R;
 import com.mjc.maze.events.GameEvent;
 import com.mjc.maze.events.GameListener;
+import com.mjc.maze.events.MazeEventType;
 
 public class MazeTimer implements Serializable, GameListener{
 
@@ -28,7 +30,7 @@ public class MazeTimer implements Serializable, GameListener{
 	float currentTimeInLevel;
 	float startTime;
 	
-    
+    GameScreenManager gsm;
     
     
     int levelTime;
@@ -48,7 +50,7 @@ public class MazeTimer implements Serializable, GameListener{
     
 
 
-    public MazeTimer(int LevelTimeInSeconds, Rect onScreenMazeBox, Context context)
+    public MazeTimer(int LevelTimeInSeconds, Rect onScreenMazeBox, Context context, GameScreenManager gsm)
     {
         this.onScreenMazeBox = onScreenMazeBox;
         levelTime = LevelTimeInSeconds;     
@@ -57,11 +59,13 @@ public class MazeTimer implements Serializable, GameListener{
         startTime = SystemClock.uptimeMillis();
         enabled = true;
         
-        //TimerGoesOff = new GameEvent(this, GameEventType.timerGoesOff);
+        this.gsm=gsm;
+        
         listenerList = new ArrayList<GameListener>();
         addMyEventListener(this);
-        mazeTimerPaint = new Paint();
+        addMyEventListener(gsm);
         
+        mazeTimerPaint = new Paint();        
         mazeTimerPaint.setTextSize(100);
         mazeTimerPaint.setStyle(Style.FILL);
         mazeTimerPaint.setColor(Color.WHITE);
@@ -75,6 +79,7 @@ public class MazeTimer implements Serializable, GameListener{
     void MazeTimer_TimerGoesOff()
     {
         enabled = false;
+        gsm.gameEventOccurred(new GameEvent(this, MazeEventType.timerGoesOff));
     }
 
 
@@ -110,6 +115,9 @@ public class MazeTimer implements Serializable, GameListener{
         		mazeTimerPaint.setColor(Color.RED);
         		else
         			mazeTimerPaint.setColor(Color.WHITE);
+        	
+        	if (levelTime-currentTimeInLevel<=0)
+        		MazeTimer_TimerGoesOff();
         }
     }
     public void ExtendTime(int timeInSecondsToExtend)

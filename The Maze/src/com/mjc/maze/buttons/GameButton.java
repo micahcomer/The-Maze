@@ -126,6 +126,8 @@ public class GameButton implements Serializable, PlayerListener
                 this.isActive = !this.isActive;
                 return;
             }
+		default:
+			break;
            
         }
 

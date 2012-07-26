@@ -5,10 +5,10 @@ import com.mjc.maze.basics.Point;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.app.KeyguardManager.KeyguardLock;
-import android.content.Context;
+
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PowerManager;
+
 import android.os.PowerManager.WakeLock;
 import android.view.Window;
 import android.view.WindowManager;
@@ -31,8 +31,8 @@ public class TheMazeActivity extends Activity {
         lock = keyguardManager.newKeyguardLock(KEYGUARD_SERVICE);  
         lock.disableKeyguard();
         
-        PowerManager pm = (PowerManager)this.getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "My Lock");
+        //PowerManager pm = (PowerManager)this.getSystemService(Context.POWER_SERVICE);
+        //wakeLock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "My Lock");
         
         Point screenDimensions = new Point(getWindowManager().getDefaultDisplay().getWidth(), getWindowManager().getDefaultDisplay().getHeight());
                 
@@ -49,23 +49,29 @@ public class TheMazeActivity extends Activity {
         intent.addCategory(Intent.CATEGORY_HOME);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        this.onPause();
 	}
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub		
-		super.onPause();
-		wakeLock.release();
+
+		manager.paused=true;	
+		//wakeLock.release();
 		lock.reenableKeyguard();
-		
+		super.onPause();		
 		
 	}
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
+		manager.InitView();
+		manager.paused=false;
+
 		super.onResume();
-		wakeLock.acquire();
+	//	wakeLock.acquire();		
+		
+				
+		
 	}
 	
 	

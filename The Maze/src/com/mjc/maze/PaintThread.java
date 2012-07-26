@@ -44,6 +44,7 @@ public class PaintThread extends Thread{
 		blackPaint.setARGB(255, 0, 0, 0);
 		//mLinePaint.setAntiAlias(true);
 
+
 		
 	}
 
@@ -62,7 +63,7 @@ public class PaintThread extends Thread{
 			long beforeTime = System.nanoTime();
 			//This is where we update the game engine
 			//UPDATE HERE!!!!!!!
-			if (screenManager!=null)
+			if ((screenManager!=null) && (!screenManager.paused))
 				screenManager.Update();
 
 			//DRAW
