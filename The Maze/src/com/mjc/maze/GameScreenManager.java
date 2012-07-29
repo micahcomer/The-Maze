@@ -1,6 +1,8 @@
 package com.mjc.maze;
 
+import java.io.IOException;
 import java.io.Serializable;
+
 
 import android.graphics.Canvas;
 import android.os.Handler;
@@ -8,7 +10,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Toast;
+
 
 import com.mjc.maze.basics.Point;
 import com.mjc.maze.buttons.ButtonEvent;
@@ -17,6 +19,8 @@ import com.mjc.maze.buttons.ButtonListener;
 import com.mjc.maze.events.GameEvent;
 import com.mjc.maze.events.GameListener;
 import com.mjc.maze.events.MazeEventType;
+import com.mjc.maze.levelio.GameStateIO;
+
 import com.mjc.maze.screens.*;
 import com.mjc.maze.sounds.SoundManager;
 
@@ -48,20 +52,18 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
     private static MazeScreen MazeScreen;
     
     final GameScreenManager gsm;
+    private GameState gameState;
     
     //State of screenManager
     boolean currentlyLoading;
 
-    int currentLevel = 1;
+    
     
     //class constructor
 	public GameScreenManager(TheMazeActivity context, Point deviceScreenDimensions) {
 		super(context);
 		
 		this.context = context;
-		
-		
-		
 		StartScreen = new StartScreen(context, deviceScreenDimensions, this);		
         LoadScreen = new LoadScreen(context, deviceScreenDimensions);
         MazeScreen = new MazeScreen(context, deviceScreenDimensions);
@@ -70,10 +72,13 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
         
         setOnTouchListener(this);
         
+		
+		gsm = this;		
+		setGameState();
+		
 		InitView();
 		setInitScreen();
 		
-		gsm = this;
 	}
 
     
@@ -91,7 +96,8 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
       
       thread.setScreenManager(this);
     }
-	private void setInitScreen()
+	
+    private void setInitScreen()
 	{
 		CurrentScreen=StartScreen;
 	}
@@ -111,6 +117,37 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 	}
 		
 
+	private void setGameState()
+	{	
+		GameStateIO gsio = new GameStateIO(context);
+		
+		if (context.getFileStreamPath("GameState").exists())
+		{			
+			try {
+				gameState = gsio.ReadGameState("GameState");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			
+			gameState = new GameState();
+			gameState.InitialSet();
+			try {
+				gsio.WriteGameState(gameState, "GameState");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+				    
+	}
+	
 	//region Event Handlers
 	
 	//Surface Interface Methods
@@ -164,7 +201,7 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 		                public void run() {
 		                    try
 		                    {
-		                        MazeScreen.CreateMaze(context, gsm, currentLevel);		                        
+		                        MazeScreen.CreateMaze(context, gsm, gameState.getCurrentLevel());		                        
 		                        CurrentScreen = MazeScreen;
 		                        currentlyLoading=false;
 		                    }
@@ -175,9 +212,9 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 		                }
 		            }).start();		            
 		        }
-			 LoadScreen.setLevel(currentLevel);
+			 LoadScreen.setLevel(gameState.getCurrentLevel());
 			CurrentScreen = LoadScreen;		
-			currentLevel++;
+			
 		}
 		else
 			if (evt.getType()==ButtonEventType.ExitGame)
@@ -194,20 +231,37 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 		
 		if (evt.getType()==MazeEventType.onLevelCompleted)
 		{
+			//Go up a level.
+			gameState.GoUpALevel();
+			
+			
+			//Pause for a sec...
 			try {
 				Thread.sleep(500);
+			
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
+			
+			//Save the progress
+			GameStateIO gsio = new GameStateIO(context);
+			try {
+				gsio.WriteGameState(gameState, "GameState");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			//Start the next level
 			buttonEventOccurred(new ButtonEvent(this, ButtonEventType.StartGame));
 		}
+		
 		else if (evt.getType()==MazeEventType.timerGoesOff)
 		{			
 			setInitScreen();
-			currentLevel--;
-			
 		}
 		
 		

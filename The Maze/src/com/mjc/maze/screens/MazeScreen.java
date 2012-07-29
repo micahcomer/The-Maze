@@ -211,7 +211,7 @@ public class MazeScreen extends GameScreen implements Serializable, ButtonListen
 	//region Zooming Methods
 	private void PinchZoom(float scaleFactor)
 	{
-		maze.Rescale(scaleFactor);
+		//maze.Rescale(scaleFactor);
 	}
 	
 	private float spacing(MotionEvent event) 
@@ -228,7 +228,11 @@ public class MazeScreen extends GameScreen implements Serializable, ButtonListen
 			return FloatMath.sqrt(x * x + y * y);
 	}
 
-	public void PowerUpEventOccurred(PowerUp source) {
+	
+
+	//endregion
+
+public void PowerUpEventOccurred(PowerUp source) {
 		
 		if (source.getType()==PowerUpType.TimeExtender)
 		{
@@ -236,9 +240,7 @@ public class MazeScreen extends GameScreen implements Serializable, ButtonListen
 		}
 		
 	}
-
-	//endregion
-
+	
 	private void ExtendTime()
 	{
 		timer.ExtendTime(3);

@@ -22,7 +22,7 @@ public class MazeCreator implements Serializable {
 	
 	Context context;
 	int mazeLevel;
-	int maxLevel = 10;
+	int maxLevel = 99;
 	int minSize = 10;
 	int maxSize = 50;
     Random random;
@@ -76,6 +76,7 @@ public class MazeCreator implements Serializable {
         MazePathBlock block;
         this.context = context;
         
+        if (level<=maxLevel)
         setMazeSize(level);
         
         
@@ -94,10 +95,38 @@ public class MazeCreator implements Serializable {
 
     private void setMazeSize(int level)
     {
-    	if (minSize+level>maxSize)
-    		this.mazeSize=new Point(maxSize, maxSize);
-    	else
+    	if (level <10)
     	this.mazeSize = new Point(minSize+level, minSize+level);
+    	
+    	else
+    	if (level <20)
+    		this.mazeSize = new Point(minSize + (int)(level/2),minSize + (int)(level/2));
+    	
+    	else
+    	if (level <30)
+    	this.mazeSize = new Point (minSize + (int)(level/3), minSize + (int)(level/3));
+    	
+    	else if (level<40)
+    	this.mazeSize = new Point (minSize + (int)(level/4), minSize + (int)(level/4));
+    	
+    	else if (level<50)
+        	this.mazeSize = new Point (minSize + (int)(level/5), minSize + (int)(level/5));
+    	
+    	else if (level<60)
+    		this.mazeSize = new Point (minSize + 50, minSize + 50);
+    	
+    	else if (level<70)
+    		this.mazeSize = new Point (minSize + 60, minSize + 60);
+    	
+    	else if (level<80)
+    		this.mazeSize = new Point (minSize + 70, minSize + 70);
+    	
+    	else if (level<90)
+    		this.mazeSize = new Point (minSize + 80, minSize + 80);
+    	
+    	else
+    		this.mazeSize = new Point (minSize + 90, minSize + 90);
+    	
     }
     
     private boolean DoesLevelExist(Context context, int level)

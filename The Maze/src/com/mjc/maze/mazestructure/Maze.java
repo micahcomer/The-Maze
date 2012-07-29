@@ -120,7 +120,7 @@ public class Maze implements com.mjc.maze.events.GameListener, Serializable,
 		//CreateConnectionData();
 		
 		maximumTileSize = 125;
-		minimumTileSize = 30;
+		minimumTileSize = 40;
 
 		// Assign appropriate tiles to each maze point.
 		MazeTileAssigner assigner = new MazeTileAssigner(mazeSize, new Point(
