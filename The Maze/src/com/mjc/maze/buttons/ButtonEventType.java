@@ -10,4 +10,6 @@ MoveUp,
 MoveLeft,
 MoveRight,
 MoveDown,
+Yes,
+No,
 }

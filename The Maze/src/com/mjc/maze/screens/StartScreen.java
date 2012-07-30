@@ -7,6 +7,7 @@ import com.mjc.maze.GameScreenManager;
 import com.mjc.maze.R;
 import com.mjc.maze.basics.Point;
 import com.mjc.maze.buttons.ButtonEventType;
+import com.mjc.maze.buttons.ButtonListener;
 import com.mjc.maze.buttons.GameButton;
 import com.mjc.maze.sounds.SoundManager;
 
@@ -22,10 +23,11 @@ import android.view.MotionEvent;
 public class StartScreen extends GameScreen {
 
 	Bitmap background;
+	
 	Paint screenPaint;
 	Resources resources;
 	Point fullScreenSize;
-	
+		
 	//List of Buttons
 	public static GameButton StartGameButton;
 	public static GameButton ContinueGameButton;
@@ -36,13 +38,17 @@ public class StartScreen extends GameScreen {
 	public static List<GameButton> Buttons;
 	boolean gameInProgress;
 	
+	static WarningScreen WarningScreen;
+	public boolean showWarningScreen;
 	
-	public StartScreen(Context context, Point fullScreenSize, GameScreenManager screenManager, boolean gameInProgress)
+	
+	public StartScreen(Context context, Point fullScreenSize, GameScreenManager screenManager, boolean gameInProgress, int level)
 	{
 		resources = context.getResources();
 		screenPaint = new Paint();	
 		screenPaint.setAntiAlias(true);
 		background = BitmapFactory.decodeResource(resources, R.drawable.startscreen_background);
+		
 		this.fullScreenSize = fullScreenSize;
 		this.gameInProgress = gameInProgress;
 		
@@ -50,12 +56,13 @@ public class StartScreen extends GameScreen {
 		CreateButtons(screenManager);
 		
 		SoundManager.getInstance().initSounds(context, 4);
-        SoundManager.getInstance().loadSound(context, 1 ,R.raw.click);   
+        SoundManager.getInstance().loadSound(context, 1 ,R.raw.click);
         
-        
-		
+        WarningScreen = new WarningScreen(context, fullScreenSize, level);
+        WarningScreen.addListener(screenManager);
+        showWarningScreen =false;
 	}
-	
+		
 	private void CreateButtons(GameScreenManager screenManager)
 	{
 		int buttonLeftEdge = (int)(fullScreenSize.getX()*.685f);
@@ -78,16 +85,14 @@ public class StartScreen extends GameScreen {
 		MusicToggleButton.setOnScreenRectangle(new Rect(buttonRightEdge-(int)(buttonHeight*1.5), buttonTop+((int)(buttonHeight*3.25))+(buttonSpacing*2), buttonRightEdge-(int)(buttonHeight/2), buttonTop+((int)(buttonHeight*4.25))+(buttonSpacing*2)));  
 		
 		StartGameButton.setPictures(BitmapFactory.decodeResource(resources, R.drawable.button_new), BitmapFactory.decodeResource(resources, R.drawable.button_new));
-		StartGameButton.isActive=true;
-		
+		StartGameButton.isActive=true;		
 		
 		ContinueGameButton.setPictures(BitmapFactory.decodeResource(resources, R.drawable.button_continue), BitmapFactory.decodeResource(resources, R.drawable.button_continue_inactive));
 		if (gameInProgress)
 		ContinueGameButton.isActive = true;
 		else
 		ContinueGameButton.isActive=false;
-		
-		
+				
 		ExitGameButton.setPictures(BitmapFactory.decodeResource(resources, R.drawable.button_exit), BitmapFactory.decodeResource(resources, R.drawable.button_exit));
 		ExitGameButton.isActive =true;
 		
@@ -112,6 +117,7 @@ public class StartScreen extends GameScreen {
 		
 	}
 	
+	
 	@Override
 	public void Update() {
 		// TODO Auto-generated method stub
@@ -120,6 +126,8 @@ public class StartScreen extends GameScreen {
 
 	@Override
 	public void Draw(Canvas canvas) {
+		
+		
 		canvas.drawBitmap(
 				background,
 				new Rect (0,0,background.getWidth(), background.getHeight()),
@@ -128,6 +136,10 @@ public class StartScreen extends GameScreen {
 		
 		for(GameButton button:Buttons)
 			button.DrawButton(canvas);
+		
+		if (showWarningScreen)
+			WarningScreen.Draw(canvas);		
+		
 	}
 
 	
@@ -137,16 +149,24 @@ public class StartScreen extends GameScreen {
 		
 		if (event.getAction() == MotionEvent.ACTION_DOWN)
 		{
+			if (showWarningScreen)
+			{
+				WarningScreen.onTouch(event);
+			}
+		}
+		else
+			
 		for (GameButton button:Buttons)
 		{
-			if (button.doesPointTouchButton(new Point ((int)event.getX(), (int)event.getY())))
-			{	
+			if ((button.doesPointTouchButton(new Point ((int)event.getX(), (int)event.getY()))  && (button.isActive)))
+			{
+				
 				button.Process();
 				if (SoundManager.getInstance().isActive())
 				SoundManager.getInstance().playSound(1, 1, 0, 1);
 				
 			}
-		}
+		
 		}
 		
 	}
