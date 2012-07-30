@@ -76,11 +76,18 @@ public class GameButton implements Serializable, PlayerListener
         	fireButtonEvent(new ButtonEvent(this, ButtonEventType.StartGame));
         	return;
         }
+        
+        case ContinueGame:
+        {
+        	fireButtonEvent(new ButtonEvent(this, ButtonEventType.ContinueGame));
+        	return;
+        }
         case ExitGame:
         {
         	fireButtonEvent(new ButtonEvent(this, ButtonEventType.ExitGame));
         	return;
         }
+        
         
             case MoveUp:
             {

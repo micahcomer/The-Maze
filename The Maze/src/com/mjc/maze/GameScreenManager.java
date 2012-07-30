@@ -64,7 +64,7 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 		super(context);
 		
 		this.context = context;
-		StartScreen = new StartScreen(context, deviceScreenDimensions, this);		
+				
         LoadScreen = new LoadScreen(context, deviceScreenDimensions);
         MazeScreen = new MazeScreen(context, deviceScreenDimensions);
         
@@ -75,6 +75,8 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 		
 		gsm = this;		
 		setGameState();
+		
+		StartScreen = new StartScreen(context, deviceScreenDimensions, this, gameState.GameInProgress);
 		
 		InitView();
 		setInitScreen();
@@ -193,6 +195,8 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 	public void buttonEventOccurred(ButtonEvent evt) {
 		if (evt.getType()==ButtonEventType.StartGame)
 		{
+			gameState.InitialSet();
+			
 			 if (!currentlyLoading)
 		        {
 		            currentlyLoading = true;
@@ -217,6 +221,31 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 			
 		}
 		else
+			if (evt.getType()==ButtonEventType.ContinueGame)
+			{
+				if (!currentlyLoading)
+		        {
+		            currentlyLoading = true;
+		            new Thread( new Runnable() {
+		                //@Override
+		                public void run() {
+		                    try
+		                    {
+		                        MazeScreen.CreateMaze(context, gsm, gameState.getCurrentLevel());		                        
+		                        CurrentScreen = MazeScreen;
+		                        currentlyLoading=false;
+		                    }
+		                    catch (Exception e)
+		                    {
+		                        e.printStackTrace();
+		                    }
+		                }
+		            }).start();		            
+		        }
+			 LoadScreen.setLevel(gameState.getCurrentLevel());
+			CurrentScreen = LoadScreen;		
+			}
+			else
 			if (evt.getType()==ButtonEventType.ExitGame)
 			{
 				context.finish();
@@ -256,7 +285,7 @@ public class GameScreenManager extends SurfaceView implements Serializable, Surf
 			
 			
 			//Start the next level
-			buttonEventOccurred(new ButtonEvent(this, ButtonEventType.StartGame));
+			buttonEventOccurred(new ButtonEvent(this, ButtonEventType.ContinueGame));
 		}
 		
 		else if (evt.getType()==MazeEventType.timerGoesOff)

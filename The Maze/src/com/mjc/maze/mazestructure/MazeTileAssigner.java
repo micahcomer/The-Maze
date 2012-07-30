@@ -81,12 +81,19 @@ public class MazeTileAssigner implements Serializable {
         for (PointList Path : allMazePaths)
         {
             for (int i = 0; i < Path.Points.size(); i++)
-            {            	//region Determine if the point is a Node, and if so, assign it to Nodes...
+            {            	
+             
+            	//A point is a node if its the first point on a path...
+            	if (i==0)
+            		Nodes.Points.add(Path.Points.get(i));
             	
-                MazeTileType currentTileDirections = CompareSurroundingPathTiles(Path, i);
+            	MazeTileType currentTileDirections = CompareSurroundingPathTiles(Path, i);
 
+                
 
-                if ((currentTileDirections != MazeTileType.UpDown) &&
+                /*
+                 if ((currentTileDirections != MazeTileType.UpDown) &&
+                 
                         (currentTileDirections != MazeTileType.LeftRight) &&
                         (currentTileDirections != MazeTileType.DownLeft) &&
                         (currentTileDirections != MazeTileType.UpLeft) &&
@@ -95,8 +102,9 @@ public class MazeTileAssigner implements Serializable {
                 {
                     Nodes.Points.add(Path.Points.get(i));
                 }
+                */
                 
-                //endregion
+
 
 
                 //If its the last tile in a path we need to join it to the path it intersects...
@@ -119,6 +127,9 @@ public class MazeTileAssigner implements Serializable {
                             
                         }
                     }
+                    
+                    //... also, a point is a node if its the last point on a path.
+                    Nodes.Points.add(Path.Points.get(i));
                 }                
 
                 //Finally, once we have made that addition of the two tiles, we assign the new currentTileDirections back into the TileDirections array, and assign an appropriate picture to it.
@@ -129,13 +140,36 @@ public class MazeTileAssigner implements Serializable {
 
         }
 
-
+        Nodes = RemoveBadNodes(Nodes);
 
 
     }
     
    
-
+    private PointList RemoveBadNodes(PointList Nodes)
+    {
+    	List<Integer> indicesToRemove = new ArrayList<Integer>();
+    	
+    	for (Point point:Nodes.Points)
+    	{
+    		if (
+    					(TileTextures[point.getX()][point.getY()]==TextureUpLeft) ||
+    					(TileTextures[point.getX()][point.getY()]==TextureRightDown) ||
+    					(TileTextures[point.getX()][point.getY()]==TextureUpDown) ||
+    					(TileTextures[point.getX()][point.getY()]==TextureUpRight) ||
+    					(TileTextures[point.getX()][point.getY()]==TextureLeftDown) ||
+    					(TileTextures[point.getX()][point.getY()]==TextureLeftRight)
+    			)
+    					
+    		indicesToRemove.add(Nodes.Points.indexOf(point));
+    	}
+    	
+    	for (Integer i:indicesToRemove)
+    		Nodes.Points.remove(i);
+    	
+    	return Nodes;    	
+    }
+    
     private void loadTilePictures(Context context)
     {   
     	adjustedTileSize = (onScreenMazeBoxSize.getY()/(mazeSize.getX()));

@@ -34,19 +34,25 @@ public class StartScreen extends GameScreen {
 	public static GameButton MusicToggleButton;
 	
 	public static List<GameButton> Buttons;
+	boolean gameInProgress;
 	
 	
-	public StartScreen(Context context, Point fullScreenSize, GameScreenManager screenManager)
+	public StartScreen(Context context, Point fullScreenSize, GameScreenManager screenManager, boolean gameInProgress)
 	{
 		resources = context.getResources();
 		screenPaint = new Paint();	
 		screenPaint.setAntiAlias(true);
 		background = BitmapFactory.decodeResource(resources, R.drawable.startscreen_background);
 		this.fullScreenSize = fullScreenSize;
+		this.gameInProgress = gameInProgress;
+		
+		
 		CreateButtons(screenManager);
 		
 		SoundManager.getInstance().initSounds(context, 4);
-        SoundManager.getInstance().loadSound(context, 1 ,R.raw.click);        		
+        SoundManager.getInstance().loadSound(context, 1 ,R.raw.click);   
+        
+        
 		
 	}
 	
@@ -74,8 +80,13 @@ public class StartScreen extends GameScreen {
 		StartGameButton.setPictures(BitmapFactory.decodeResource(resources, R.drawable.button_new), BitmapFactory.decodeResource(resources, R.drawable.button_new));
 		StartGameButton.isActive=true;
 		
-		ContinueGameButton.setPictures(BitmapFactory.decodeResource(resources, R.drawable.button_continue), BitmapFactory.decodeResource(resources, R.drawable.button_continue));
-		ContinueGameButton.isActive = false;
+		
+		ContinueGameButton.setPictures(BitmapFactory.decodeResource(resources, R.drawable.button_continue), BitmapFactory.decodeResource(resources, R.drawable.button_continue_inactive));
+		if (gameInProgress)
+		ContinueGameButton.isActive = true;
+		else
+		ContinueGameButton.isActive=false;
+		
 		
 		ExitGameButton.setPictures(BitmapFactory.decodeResource(resources, R.drawable.button_exit), BitmapFactory.decodeResource(resources, R.drawable.button_exit));
 		ExitGameButton.isActive =true;
