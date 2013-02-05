@@ -50,6 +50,12 @@ public class PaintPanel extends javax.swing.JPanel implements MouseInputListener
     public int currentMode = MazePainterMainForm.MODE_DRAW;
     public Image selection;
     
+    public MazePainterMainForm mainForm;
+    
+    public void setMainForm(MazePainterMainForm f){
+        this.mainForm = f;
+    }
+    
     public PaintPanel() {
         initComponents();
         animationIndex = new int[24][18];
@@ -57,7 +63,7 @@ public class PaintPanel extends javax.swing.JPanel implements MouseInputListener
         overlayColor = Color.DARK_GRAY;
         backgroundColor = Color.BLUE;
         overlayTest = Color.GREEN;   
-        animationsOnScreen = new ArrayList<Animation>();
+        animationsOnScreen = new ArrayList<Animation>();        
     }
 
 
@@ -413,38 +419,19 @@ public class PaintPanel extends javax.swing.JPanel implements MouseInputListener
     {       
         if (animationIndex[x][y]>=0)
         {
-            g.drawImage(
-                    animationsOnScreen.get(animationIndex[Math.min(x,23)][Math.min(y,17)]).getFirstCell(), 
-                    x*40, 
-                    y*40, 
-                    animationsOnScreen.get(animationIndex[Math.min(x,23)][Math.min(y,17)]).getFirstCell().getWidth(this), 
-                    animationsOnScreen.get(animationIndex[x][y]).getFirstCell().getHeight(this), 
-                    this
-                    );
+           g.drawImage(animationsOnScreen.get(animationIndex[x][y]).getFrame(new Point(0,0)).getImage(), (int)(x*blockW), (int)(y*blockH), this);
         }
     }
     
     public void loadScreen(MazeSection screen)
     {
-        
-        this.animationIndex = screen.animationIndex;
-        this.animationsOnScreen.clear();
-        this.animationsOnScreen = screen.animations;
-        
-        if (animationsOnScreen.contains(currentBrush))
-        {
-            currentBrush = animationsOnScreen.get(animationsOnScreen.indexOf(currentBrush));
-        }
-        else
-        {
-            if (animationsOnScreen.size()>0)
-            {
-            currentBrush = animationsOnScreen.get(0);
-            }
-        }
-        
+        this.animationIndex = screen.animationIndex;        
+        for (int i=0; i<screen.animations.size(); i++){
+            this.animationsOnScreen.add(screen.animations.get(i));
+        }        
         drawGridArea();
     }
+    
     
     public void AutoFill()
     {

@@ -9,6 +9,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -17,6 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import sun.rmi.runtime.Log;
 
 public class MazePainterMainForm extends javax.swing.JFrame {
 
@@ -27,7 +30,8 @@ public class MazePainterMainForm extends javax.swing.JFrame {
     Action rightAction;
     Action upAction;
     Action downAction;
-    ArrayList<Animation> currentBrushes;
+    public MazeSection currentSection;
+    ArrayList<Animation> loadedBrushes;
     public static final int MODE_DRAW = 0;
     public static final int MODE_ERASE = 1;
     public static final int MODE_SELECT = 2;
@@ -35,13 +39,14 @@ public class MazePainterMainForm extends javax.swing.JFrame {
 
     public MazePainterMainForm() {
         initComponents();
+        
         paintPanel1.initialize();
         mazeWorldMapPanel1.addMouseListener(mazeWorldMapPanel1);
         mazeWorldMapPanel1.addMouseMotionListener(mazeWorldMapPanel1);
 
         mazeWorldMapPanel1.setMainForm(this);
         mazeWorldMapPanel1.setScrollBars(jScrollBar1, jScrollBar2);
-        currentBrushes = new ArrayList<Animation>();
+        loadedBrushes = new ArrayList<Animation>();
         if (!new java.io.File("Saved Screens").exists()) {
             new java.io.File("Saved Screens").mkdir();
         }
@@ -57,6 +62,7 @@ public class MazePainterMainForm extends javax.swing.JFrame {
 
     public void init() {
         bindKeys();
+        paintPanel1.setMainForm(this);
     }
 
     private void bindKeys() {
@@ -554,7 +560,110 @@ public class MazePainterMainForm extends javax.swing.JFrame {
     
     private void button_loadBrushActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_loadBrushActionPerformed
         
-        boolean pauseThenLoop = false;
+            JFileChooser chooser = new JFileChooser();
+            int val = chooser.showOpenDialog(jLabel1);
+            if (val == JFileChooser.APPROVE_OPTION) {
+            try {
+                File brushFile = chooser.getSelectedFile();                
+                BufferedImage img = ImageIO.read(brushFile);
+                SimplePic s = new SimplePic();
+                s.setImage(img);
+                String val3 = JOptionPane.showInputDialog("Please enter the number of rows in this animation strip.");
+                int rows = Integer.parseInt(val3);
+                String val4 = JOptionPane.showInputDialog("Please enter the number of columns in this animation strip.");
+                int columns = Integer.parseInt(val4);
+                
+                Animation a = new Animation(s, new Point(columns, rows));                
+                a.name = brushFile.getName();                
+                paintPanel1.currentBrush = a;
+                paintPanel1.addImageToScreen(a);
+                brushPreviewPanel1.setNewBrush(a.getFrame(new Point(0,0)).getImage());
+                if (!loadedBrushes.contains(a)){
+                loadedBrushes.add(a);
+                }
+                jLabel5.setVisible(false);
+                updateBrushList();
+                            
+                
+                
+            } catch (IOException ex) {
+                Logger.getLogger(MazePainterMainForm.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NumberFormatException e) {
+                        JOptionPane.showMessageDialog(this, "You did not enter a valid number of rows.  Please try again.");
+                    }
+                
+            }
+    }//GEN-LAST:event_button_loadBrushActionPerformed
+
+    public void updateBrushList(){
+
+        //Enable the list if needed...
+        if (!loadedBrushList.isEnabled()){
+            loadedBrushList.setEnabled(true);
+            }
+                
+        //Create a new model for the list.
+        DefaultListModel listModel = new DefaultListModel();
+            
+        //Add all of the currently loaded brushes back into the new list.
+        for (int j=0; j<loadedBrushes.size(); j++){
+            listModel.addElement(loadedBrushes.get(j).name);
+        }
+                
+        //Remove any duplicate items.
+        listModel = removeDuplicates(listModel);
+        
+        //Assign the new model to the loadedBrushList control.
+        loadedBrushList.setModel(listModel);
+        
+        
+        if (loadedBrushList.getSelectedIndex()>=0){
+            brushPreviewPanel1.setNewBrush(loadedBrushes.get(loadedBrushList.getSelectedIndex()).getFrame(new Point(0,0)).getImage());
+            paintPanel1.addImageToScreen(loadedBrushes.get(loadedBrushList.getSelectedIndex()));
+        }else{
+            brushPreviewPanel1.setNewBrush(loadedBrushes.get(0).getFrame(new Point(0,0)).getImage());
+            paintPanel1.addImageToScreen(loadedBrushes.get(0));
+        }
+            
+    }
+    
+    private DefaultListModel removeDuplicates(DefaultListModel list){
+        
+        if (list.size()>1){
+            
+            boolean [] remove = new boolean[list.getSize()];
+            
+            for (int i=0; i<list.getSize()-1; i++)
+            {
+                for (int j=i+1; j<list.getSize(); j++){
+                    if (list.get(i).equals(list.get(j))){
+                        remove[j]=true;
+                    }
+                    else
+                    {
+                        remove[j]=false;
+                    }
+                }
+            }
+            
+            for (int k=list.getSize()-1; k>=0; k--){
+            if (remove[k]){
+                list.remove(k);
+            }       
+        }
+        
+        
+        }
+        
+        return list;
+        
+    }
+    
+    /*
+    
+    private void old_loadbrushActionMethod(java.awt.event.ActionEvent evt){
+        
+                boolean pauseThenLoop = false;
         int pauseDelay=0;
         try {            
             
@@ -676,9 +785,11 @@ public class MazePainterMainForm extends javax.swing.JFrame {
         
         
         }
-
-    }//GEN-LAST:event_button_loadBrushActionPerformed
-
+        
+    }
+    
+    */
+    
     private SerializableImage createCollisionMap(SerializableImage si, CollisionType type) {
         int[] collisionColors = new int[si.getPixels().length];
         System.arraycopy(si.getPixels(), 0, collisionColors, 0, si.getPixels().length);
@@ -813,7 +924,6 @@ public class MazePainterMainForm extends javax.swing.JFrame {
             File tileFile = chooser.getSelectedFile();
             LoadNewMaze(tileFile);
         }
-
     }//GEN-LAST:event_button_loadNewMazeActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
@@ -856,12 +966,22 @@ public class MazePainterMainForm extends javax.swing.JFrame {
 
     private void loadedBrushListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_loadedBrushListValueChanged
 
-        if ((loadedBrushList.getSelectedIndex() >= 0) && (currentBrushes.size() > 0)) {
-            paintPanel1.currentBrush = currentBrushes.get(loadedBrushList.getSelectedIndex());
-            paintPanel1.addImageToScreen(currentBrushes.get(loadedBrushList.getSelectedIndex()));
-            brushPreviewPanel1.setNewBrush(currentBrushes.get(loadedBrushList.getSelectedIndex()).getFirstCell());
+        if ((loadedBrushes.size()>loadedBrushList.getSelectedIndex()&& (loadedBrushes.size()>0))){
+            try{
+                if (loadedBrushList.getSelectedIndex()>=0){
+                    paintPanel1.addImageToScreen(loadedBrushes.get(loadedBrushList.getSelectedIndex()));
+                    brushPreviewPanel1.setNewBrush(loadedBrushes.get(loadedBrushList.getSelectedIndex()).getFrame(new Point(0,0)).getImage());
+                }
+                else{
+                    paintPanel1.addImageToScreen(loadedBrushes.get(0));
+                    brushPreviewPanel1.setNewBrush(loadedBrushes.get(0).getFrame(new Point(0,0)).getImage());
+                }
+            }
+            catch (ArrayIndexOutOfBoundsException e){
+                Log.getLog(e.getMessage(), e.toString(), true);
+            }
         }
-
+        
     }//GEN-LAST:event_loadedBrushListValueChanged
 
     private void button_changeDefaultDirectoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_changeDefaultDirectoryActionPerformed
@@ -994,8 +1114,8 @@ public class MazePainterMainForm extends javax.swing.JFrame {
                     }
                 }
             }
-            ois.close();
-            fis.close();
+            //ois.close();
+            //fis.close();
 
             //Set the label to reflect the new maze name.
             currentFileName = file.getName();
@@ -1009,29 +1129,6 @@ public class MazePainterMainForm extends javax.swing.JFrame {
             jScrollBar1.setEnabled(true);
             jScrollBar2.setEnabled(true);
 
-            mazeWorldMapPanel1.LoadScreen();
-
-
-            for (Animation newBrush : paintPanel1.animationsOnScreen) {
-                if (!loadedBrushList.isEnabled()) {
-                    loadedBrushList.setEnabled(true);
-                    DefaultListModel listModel = new DefaultListModel();
-                    listModel.addElement(newBrush.name);
-                    loadedBrushList.setModel(listModel);
-                    currentBrushes = paintPanel1.getBrushes();
-
-                } else {
-                    DefaultListModel listModel = new DefaultListModel();
-                    for (int i = 0; i < loadedBrushList.getModel().getSize(); i++) {
-                        listModel.addElement(loadedBrushList.getModel().getElementAt(i));
-                    }
-                    listModel.addElement(newBrush.name);
-                    loadedBrushList.setModel(listModel);
-                    currentBrushes = paintPanel1.getBrushes();
-
-                }
-            }
-            loadedBrushList.setSelectedIndex(loadedBrushList.getModel().getSize() - 1);
 
 
         } catch (ClassNotFoundException ex) {
@@ -1045,7 +1142,10 @@ public class MazePainterMainForm extends javax.swing.JFrame {
                 ois.close();
             } catch (IOException ex) {
                 String msg = "Not a valid maze file.  Please try again.";
-                JOptionPane.showMessageDialog(this, msg);
+                JOptionPane.showMessageDialog(this, msg);                
+            }
+            catch (NullPointerException ex){
+                
             }
             try {
                 fis.close();
@@ -1057,4 +1157,56 @@ public class MazePainterMainForm extends javax.swing.JFrame {
         
 
     }
+
+    
+    
+     public void LoadScreen(){
+        if (!currentFileName.equals("")){
+        String path = saveFilePath;
+        path += "\\"+"x"+String.valueOf(mazeWorldMapPanel1.selectedPositionInMaze.x) + "x"+ String.valueOf(mazeWorldMapPanel1.selectedPositionInMaze.y)+".dat";
+        File f = new File(path);
+        FileInputStream fis = null;
+        ObjectInputStream ois = null;
+        
+        try{
+            if (f.exists())
+            {                
+                fis = new FileInputStream(f);
+                ois = new ObjectInputStream(fis);                  
+                MazeSection screen = new MazeSection();
+                screen.readExternal(ois);
+                currentSection = screen;
+                //Update paint panel, brush list, and brush preview panel.
+                getPaintPanel().loadScreen(screen);
+                for (int i=0; i<screen.animations.size(); i++){
+                    if (!(loadedBrushes.contains(screen.animations.get(i))))
+                    loadedBrushes.add(screen.animations.get(i));
+                        }
+                updateBrushList();                
+                
+                //selectedPositionOnGrid = new Point(0,0);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(MazeWorldMapPanel.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(MazeWorldMapPanel.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        finally
+        {
+            try {
+                if (ois!=null)
+                {
+                    ois.close();
+                }
+                if (fis!=null)
+                {
+                    fis.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(MazeWorldMapPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }   
+    }
+
 }

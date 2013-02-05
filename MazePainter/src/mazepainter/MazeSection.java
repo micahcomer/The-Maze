@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class MazeSection implements Externalizable{
     
     public int[][] animationIndex;    
-    ArrayList<Animation> animations;
+    public ArrayList<Animation> animations;
     
     public void addAnimation(Animation a)
     {
@@ -23,6 +23,29 @@ public class MazeSection implements Externalizable{
         animations = new ArrayList<Animation>();        
     }
 
+    
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+         out.writeObject(animationIndex);     
+         out.writeInt(animations.size());
+         for (int i=0; i<animations.size(); i++){
+             out.writeObject(animations.get(i));
+         }        
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        animationIndex = (int[][])in.readObject();
+        int size = in.readInt();
+        for (int i=0; i<size; i++){
+            animations.add((Animation)in.readObject());
+        }
+    }
+    
+    /*
+    
+    * 
+    * 
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {           
         animationIndex = (int[][])in.readObject();
@@ -44,5 +67,6 @@ public class MazeSection implements Externalizable{
             animations.get(i).writeExternal(out);
         }            
     }
-    
+    */
+
 }

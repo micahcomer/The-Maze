@@ -9,10 +9,8 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -157,7 +155,7 @@ public class MazeWorldMapPanel extends javax.swing.JPanel implements MouseInputL
         }
     }
     
-    public void drawGrid(){
+    public final void drawGrid(){
         Graphics g = image.getGraphics();
         g.setColor(Color.GRAY);
         g.fillRect(0,0,200,200);
@@ -403,7 +401,7 @@ public class MazeWorldMapPanel extends javax.swing.JPanel implements MouseInputL
         mainForm.getPaintPanel().currentTile = tiles[x][y];        
         mainForm.getPaintPanel().updateOverlay();
         mainForm.getPaintPanel().picArrayInit();
-        LoadScreen();
+        this.mainForm.LoadScreen();
         mainForm.updateTextArea(getTextInfo(selectedPositionInMaze));
         mainForm.getPaintPanel().drawGridArea();
         drawGrid();
@@ -560,48 +558,7 @@ public class MazeWorldMapPanel extends javax.swing.JPanel implements MouseInputL
         }
     }
 
-    public void LoadScreen(){
-        if (!mainForm.currentFileName.equals("")){
-        String path = mainForm.saveFilePath;
-        path += "\\"+"x"+String.valueOf(selectedPositionInMaze.x) + "x"+ String.valueOf(selectedPositionInMaze.y)+".dat";
-        File f = new File(path);
-        FileInputStream fis = null;
-        ObjectInputStream ois = null;
-        
-        try{
-           
-            if (f.exists())
-            {
-                
-                fis = new FileInputStream(f);
-                ois = new ObjectInputStream(fis);                  
-                MazeSection screen = new MazeSection();
-                screen.readExternal(ois);
-                mainForm.getPaintPanel().loadScreen(screen);
-                //selectedPositionOnGrid = new Point(0,0);
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(MazeWorldMapPanel.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(MazeWorldMapPanel.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        finally
-        {
-            try {
-                if (ois!=null)
-                {
-                    ois.close();
-                }
-                if (fis!=null)
-                {
-                    fis.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(MazeWorldMapPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }   
-    }
+   
     
     public void MoveUp(){
         if (selectedPositionInMaze.y>0)
